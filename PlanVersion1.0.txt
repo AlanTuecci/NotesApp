@@ -1,0 +1,16 @@
+The backend will provide a means of traversing the directory and downloading files from the server. It will do nothing else.
+
+Version 1: Basic file access and directory traversing.
+
+Here is how the frontend and the backend will communicate:
+    1:  User enters the website.
+            --> The frontend will make a GET request to the server with the following URL: "http://backendURL:serverPort/API/DirAccess/College/"
+            --> Server sends the contents of the root folder in the form of a json object.
+    2:  Frontend displays an element with a table displaying the contents of the json object with the appropriate icons.
+            --> Folders will never have periods in their names, but files always will.
+                This is how the application will distinguish between folders and files.
+    3:  User will double-click on an element, which will send a request to the backend.
+            --> This will be a GET request with the following form: "http://backendURL:serverPort/API/DirAccess/College/UserSelectedDirectory/(0 or more URL parameters)/".
+            --> The frontend will remember the current directory and update it depending on whether or not users would like to go back one level or proceed one level futher.
+    4:  This process of users double-clicking on elements in the frontend's table will continue until a user ends up clicking on an entry that corresponds to a file.
+            --> This will send a request to a different backend endpoint. This will be a GET request with the following form: "http://backendURL:serverPort/API/FileAccess/UserSelectedDirectory/(0 or more URL parameters)/UserSelectedFile".
