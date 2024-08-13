@@ -8,9 +8,9 @@ const collegeSemesters = ["Fall Semester", "Spring Semester"];
 
 router.get("/", async (req, res) => {
   try {
-    const dirPath = path.join(__dirname, "../../../../college");
+    const dirPath = path.join(__dirname, "../../../../../college");
     let dirContents = await fs.readdir(dirPath);
-    dirContents = dirContents.filter(entry => !entry.includes('.'));
+    dirContents = dirContents.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
     res.json(dirContents);
   } catch (error) {
     console.log(error);
@@ -20,12 +20,12 @@ router.get("/", async (req, res) => {
 
 router.get("/:GradeLevel", async (req, res) => {
   try {
-    const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel);
+    const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel);
     const prevPath = path.join(dirPath, '../');
 
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) != -1){
       let dirContents = await fs.readdir(dirPath);
-      dirContents = dirContents.filter(entry => !entry.includes('.'));
+      dirContents = dirContents.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
       res.json(dirContents);
     } else {
       res.status(404).send('Invalid college grade level entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -38,12 +38,12 @@ router.get("/:GradeLevel", async (req, res) => {
 
 router.get("/:GradeLevel/:Semester", async (req,res) => {
   try {
-    const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester);
+    const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester);
     const prevPath = path.join(dirPath, '../');
 
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) != -1 && collegeSemesters.indexOf(req.params.Semester) != -1){
       let dirContents = await fs.readdir(dirPath);
-      dirContents = dirContents.filter(entry => !entry.includes('.'));
+      dirContents = dirContents.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
       res.json(dirContents);
     } else {
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -59,7 +59,7 @@ router.get("/:GradeLevel/:Semester/:ClassName", async (req,res) => {
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -67,7 +67,7 @@ router.get("/:GradeLevel/:Semester/:ClassName", async (req,res) => {
 
       if(prevDirFolders.indexOf(req.params.ClassName) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -84,7 +84,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder", async (req,res) => {
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -92,7 +92,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder", async (req,res) => {
 
       if(prevDirFolders.indexOf(req.params.SubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name or subfolder name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -109,7 +109,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder", async (
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -117,7 +117,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder", async (
 
       if(prevDirFolders.indexOf(req.params.SubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name, subfolder, or sub-subfolder name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -134,7 +134,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -142,7 +142,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
 
       if(prevDirFolders.indexOf(req.params.SubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name, subfolder, sub-subfolder, or sub-sub-subfolder name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -159,7 +159,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -167,7 +167,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
 
       if(prevDirFolders.indexOf(req.params.SubSubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name, subfolder, sub-subfolder, or sub-sub-sub-subfolder name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -184,7 +184,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
@@ -192,7 +192,7 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
 
       if(prevDirFolders.indexOf(req.params.SubSubSubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
-        dirContents = dirContents.filter(entry => !entry.endsWith('.ini'));
+        dirContents = dirContents.filter(entry => !entry.endsWith('.ini') && !entry.includes('Makefile') && !entry.includes('main'));
         res.json(dirContents);
       } else {
         res.status(404).send('Invalid class name, subfolder, sub-subfolder, sub-sub-subfolder, sub-sub-sub-subfolder or sub-sub-sub-sub-subfolder name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
@@ -205,38 +205,3 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
 });
 
 module.exports = router;
-
-
-// router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:Resource", async (req,res) => {
-//   const gradeLevel = req.params.GradeLevel;
-//   const semester = req.params.Semester;
-//   const resource = req.params.Resource;
-//   const isFolder = resource.indexOf('.') == -1;
-
-//   if(collegeGradeLevels.indexOf(gradeLevel) != -1 && collegeSemesters.indexOf(semester) != -1){
-//     const dirPath = path.join(__dirname, "../../../../College/", gradeLevel, semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder);
-
-//     if(!isFolder){
-//       fs.readdir(dirPath, (err, files) => {
-//         if (err) {
-//           res.status(500).send("Unable to scan directory: " + err);
-//         } else {
-//           const fileIndex = files.indexOf(resource);
-//           res.sendFile(path.join(dirPath, resource));
-//         }
-//       });  
-//     } else {
-//       const newPath = path.join(dirPath, resource);
-//       fs.readdir(newPath,(err, files) => {
-//         if (err) {
-//           res.status(500).send("Unable to scan directory: " + err);
-//         } else {
-//           const filteredFiles = files.filter(entry => !entry.endsWith('.ini'));
-//           res.json(filteredFiles);
-//           }
-//       });    
-//     }
-//   } else {
-//     res.status(404).send('Incorrect college grade level or semester entered.');
-//   }
-// });

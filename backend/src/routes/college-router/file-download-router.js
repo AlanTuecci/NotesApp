@@ -1,4 +1,3 @@
-const { dir } = require("console");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs/promises");
@@ -12,11 +11,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:Resource", async (req, res) => {
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.ClassName) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -40,11 +39,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:Resource", async (req,
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -68,11 +67,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:Resource
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -96,11 +95,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -124,11 +123,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubSubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -152,11 +151,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubSubSubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
@@ -180,11 +179,11 @@ router.get("/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSu
     if(collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 || collegeSemesters.indexOf(req.params.Semester) == -1){
       res.status(404).send('Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!');
     } else {
-      const dirPath = path.join(__dirname, "../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
+      const dirPath = path.join(__dirname, "../../../../../College", req.params.GradeLevel, req.params.Semester, req.params.ClassName, req.params.SubFolder, req.params.SubSubFolder, req.params.SubSubSubFolder, req.params.SubSubSubSubFolder, req.params.SubSubSubSubSubFolder, req.params.SubSubSubSubSubFolder);
       const prevPath = path.join(dirPath, '../');
   
       let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.'));
+      prevDirFolders = prevDirFolders.filter(entry => !entry.includes('.') && !entry.includes('Makefile') && !entry.includes('main'));
 
       if(prevDirFolders.indexOf(req.params.SubSubSubSubSubSubFolder) != -1){
         let dirContents = await fs.readdir(dirPath);
