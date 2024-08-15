@@ -30,14 +30,13 @@ router.get("/", async (req, res) => {
 
 router.get("/:GradeLevel", async (req, res) => {
   try {
-    const dirPath = path.join(
-      __dirname,
-      "../../../../../College",
-      req.params.GradeLevel
-    );
-    const prevPath = path.join(dirPath, "../");
-
     if (collegeGradeLevels.indexOf(req.params.GradeLevel) != -1) {
+      const dirPath = path.join(
+        __dirname,
+        "../../../../../College",
+        req.params.GradeLevel
+      );
+      const prevPath = path.join(dirPath, "../");
       let dirContents = await fs.readdir(dirPath);
       dirContents = dirContents.filter(
         (entry) =>
@@ -61,18 +60,17 @@ router.get("/:GradeLevel", async (req, res) => {
 
 router.get("/:GradeLevel/:Semester", async (req, res) => {
   try {
-    const dirPath = path.join(
-      __dirname,
-      "../../../../../College",
-      req.params.GradeLevel,
-      req.params.Semester
-    );
-    const prevPath = path.join(dirPath, "../");
-
     if (
       collegeGradeLevels.indexOf(req.params.GradeLevel) != -1 &&
       collegeSemesters.indexOf(req.params.Semester) != -1
     ) {
+      const dirPath = path.join(
+        __dirname,
+        "../../../../../College",
+        req.params.GradeLevel,
+        req.params.Semester
+      );
+      const prevPath = path.join(dirPath, "../");
       let dirContents = await fs.readdir(dirPath);
       dirContents = dirContents.filter(
         (entry) =>
