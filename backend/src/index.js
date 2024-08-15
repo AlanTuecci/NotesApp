@@ -5,12 +5,20 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const cors = require("cors");
 const path = require("path");
+const { rateLimit } = require("express-rate-limit");
+
+//limit number of requests to 40 requests per minute
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  limit: 40,
+});
 
 //initialize middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(passport.initialize());
+app.use(limiter);
 
 //import routes
 const authRoutes = require("./routes/auth");
