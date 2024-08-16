@@ -36,7 +36,7 @@ const Dashboard = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error("There was an error!", error.response.data.error);
         logout();
       });
   }, [dirStack, logout]);

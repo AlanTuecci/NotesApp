@@ -11,6 +11,11 @@ const collegeGradeLevels = [
 ];
 const collegeSemesters = ["Fall Semester", "Spring Semester"];
 
+//remove any character that cannot be used in a Windows file name
+const sanitizeInput = (input) => {
+  return input.replace(/[\/:\*\?"<>\|]/g, "");
+};
+
 router.get("/:GradeLevel/:Semester/:ClassName/:Resource", async (req, res) => {
   try {
     if (
@@ -23,45 +28,55 @@ router.get("/:GradeLevel/:Semester/:ClassName/:Resource", async (req, res) => {
           "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
         );
     } else {
+      //sanitize inputs
+      const sanitizedClassName = sanitizeInput(req.params.ClassName);
+      const sanitizedResource = sanitizeInput(req.params.Resource);
+
+      //construct the path securely
+      const basePath = path.resolve(__dirname, "../../../../../College");
       const dirPath = path.join(
-        __dirname,
-        "../../../../../College",
+        basePath,
         req.params.GradeLevel,
         req.params.Semester,
-        req.params.ClassName
+        sanitizedClassName
       );
-      const prevPath = path.join(dirPath, "../");
+      const resolvedDirPath = path.resolve(dirPath);
 
-      let prevDirFolders = await fs.readdir(prevPath);
-      prevDirFolders = prevDirFolders.filter(
-        (entry) =>
-          !entry.includes(".") &&
-          !entry.includes("Makefile") &&
-          !entry.includes("main")
-      );
-
-      if (prevDirFolders.indexOf(req.params.ClassName) != -1) {
-        let dirContents = await fs.readdir(dirPath);
-        if (dirContents.includes(req.params.Resource)) {
-          res.sendFile(path.join(dirPath, req.params.Resource));
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
-        }
-      } else {
-        res
-          .status(404)
-          .send(
-            "Invalid class name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-          );
+      // Prevent path traversal by ensuring the resolved path is within the base path
+      if (!resolvedDirPath.startsWith(basePath)) {
+        return res.status(400).send("Invalid path.");
       }
+
+      // Check if the directory exists
+      const dirExists = await fs
+        .stat(resolvedDirPath)
+        .then((stat) => stat.isDirectory())
+        .catch(() => false);
+      if (!dirExists) {
+        return res.status(404).send("Directory does not exist.");
+      }
+
+      // Check if the resource exists in the directory
+      const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+      const resolvedResourcePath = path.resolve(resourcePath);
+      if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+        return res.status(400).send("Invalid resource path.");
+      }
+
+      const resourceExists = await fs
+        .stat(resolvedResourcePath)
+        .then((stat) => stat.isFile())
+        .catch(() => false);
+      if (!resourceExists) {
+        return res.status(404).send("Resource not found.");
+      }
+
+      // Send the file
+      res.sendFile(resolvedResourcePath);
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.meessage });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -79,46 +94,56 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedResource = sanitizeInput(req.params.Resource);
+
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
         const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
+          basePath,
           req.params.GradeLevel,
           req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder
+          sanitizedClassName,
+          sanitizedSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
+        const resolvedDirPath = path.resolve(dirPath);
 
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
-        );
-
-        if (prevDirFolders.indexOf(req.params.SubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name or subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
     }
   }
 );
@@ -137,47 +162,58 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedResource = sanitizeInput(req.params.Resource);
+
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
         const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
+          basePath,
           req.params.GradeLevel,
           req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder,
-          req.params.SubSubFolder
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
+        const resolvedDirPath = path.resolve(dirPath);
 
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
-        );
-
-        if (prevDirFolders.indexOf(req.params.SubSubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name, subfolder, or sub-subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
     }
   }
 );
@@ -196,48 +232,62 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
-        const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
-          req.params.GradeLevel,
-          req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder,
-          req.params.SubSubFolder,
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedSubSubSubFolder = sanitizeInput(
           req.params.SubSubSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
+        const sanitizedResource = sanitizeInput(req.params.Resource);
 
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
+        const dirPath = path.join(
+          basePath,
+          req.params.GradeLevel,
+          req.params.Semester,
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder,
+          sanitizedSubSubSubFolder
         );
+        const resolvedDirPath = path.resolve(dirPath);
 
-        if (prevDirFolders.indexOf(req.params.SubSubSubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name, subfolder, sub-subfolder, or sub-sub-subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
     }
   }
 );
@@ -256,49 +306,66 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
-        const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
-          req.params.GradeLevel,
-          req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder,
-          req.params.SubSubFolder,
-          req.params.SubSubSubFolder,
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubFolder
+        );
+        const sanitizedSubSubSubSubFolder = sanitizeInput(
           req.params.SubSubSubSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
+        const sanitizedResource = sanitizeInput(req.params.Resource);
 
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
+        const dirPath = path.join(
+          basePath,
+          req.params.GradeLevel,
+          req.params.Semester,
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder,
+          sanitizedSubSubSubFolder,
+          sanitizedSubSubSubSubFolder
         );
+        const resolvedDirPath = path.resolve(dirPath);
 
-        if (prevDirFolders.indexOf(req.params.SubSubSubSubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name, subfolder, sub-subfolder, sub-sub-subfolder, or sub-sub-sub-subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
     }
   }
 );
@@ -317,56 +384,76 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
-        const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
-          req.params.GradeLevel,
-          req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder,
-          req.params.SubSubFolder,
-          req.params.SubSubSubFolder,
-          req.params.SubSubSubSubFolder,
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubFolder
+        );
+        const sanitizedSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubFolder
+        );
+        const sanitizedSubSubSubSubSubFolder = sanitizeInput(
           req.params.SubSubSubSubSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
+        const sanitizedResource = sanitizeInput(req.params.Resource);
 
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
+        const dirPath = path.join(
+          basePath,
+          req.params.GradeLevel,
+          req.params.Semester,
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder,
+          sanitizedSubSubSubFolder,
+          sanitizedSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubFolder
         );
+        const resolvedDirPath = path.resolve(dirPath);
 
-        if (prevDirFolders.indexOf(req.params.SubSubSubSubSubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name, subfolder, sub-subfolder, sub-sub-subfolder, sub-sub-sub-subfolder, or sub-sub-sub-sub-subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
     }
   }
 );
 
 router.get(
-  "/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSubFolder/:SubSubSubSubFolder/:SubSubSubSubSubFolder/:Resource",
+  "/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSubFolder/:SubSubSubSubFolder/:SubSubSubSubSubFolder/:SubSubSubSubSubSubFolder/:Resource",
   async (req, res) => {
     try {
       if (
@@ -379,51 +466,164 @@ router.get(
             "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
           );
       } else {
-        const dirPath = path.join(
-          __dirname,
-          "../../../../../College",
-          req.params.GradeLevel,
-          req.params.Semester,
-          req.params.ClassName,
-          req.params.SubFolder,
-          req.params.SubSubFolder,
-          req.params.SubSubSubFolder,
-          req.params.SubSubSubSubFolder,
-          req.params.SubSubSubSubSubFolder,
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubFolder
+        );
+        const sanitizedSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubFolder
+        );
+        const sanitizedSubSubSubSubSubFolder = sanitizeInput(
           req.params.SubSubSubSubSubFolder
         );
-        const prevPath = path.join(dirPath, "../");
-
-        let prevDirFolders = await fs.readdir(prevPath);
-        prevDirFolders = prevDirFolders.filter(
-          (entry) =>
-            !entry.includes(".") &&
-            !entry.includes("Makefile") &&
-            !entry.includes("main")
+        const sanitizedSubSubSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubSubSubFolder
         );
+        const sanitizedResource = sanitizeInput(req.params.Resource);
 
-        if (prevDirFolders.indexOf(req.params.SubSubSubSubSubSubFolder) != -1) {
-          let dirContents = await fs.readdir(dirPath);
-          if (dirContents.includes(req.params.Resource)) {
-            res.sendFile(path.join(dirPath, req.params.Resource));
-          } else {
-            res
-              .status(404)
-              .send(
-                "Invalid resource name entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-              );
-          }
-        } else {
-          res
-            .status(404)
-            .send(
-              "Invalid class name, subfolder, sub-subfolder, sub-sub-subfolder, sub-sub-sub-subfolder, sub-sub-sub-sub-subfolder, or sub-sub-sub-sub-sub-subfolder entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
-            );
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
+        const dirPath = path.join(
+          basePath,
+          req.params.GradeLevel,
+          req.params.Semester,
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder,
+          sanitizedSubSubSubFolder,
+          sanitizedSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubSubFolder
+        );
+        const resolvedDirPath = path.resolve(dirPath);
+
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
         }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error.meessage });
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+router.get(
+  "/:GradeLevel/:Semester/:ClassName/:SubFolder/:SubSubFolder/:SubSubSubFolder/:SubSubSubSubFolder/:SubSubSubSubSubFolder/:SubSubSubSubSubSubFolder/:SubSubSubSubSubSubSubFolder/:Resource",
+  async (req, res) => {
+    try {
+      if (
+        collegeGradeLevels.indexOf(req.params.GradeLevel) == -1 ||
+        collegeSemesters.indexOf(req.params.Semester) == -1
+      ) {
+        res
+          .status(404)
+          .send(
+            "Invalid college grade level or semester entered. Note: Improperly capitalized strings will lead to an unsuccessful result!"
+          );
+      } else {
+        //sanitize inputs
+        const sanitizedClassName = sanitizeInput(req.params.ClassName);
+        const sanitizedSubFolder = sanitizeInput(req.params.SubFolder);
+        const sanitizedSubSubFolder = sanitizeInput(req.params.SubSubFolder);
+        const sanitizedSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubFolder
+        );
+        const sanitizedSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubFolder
+        );
+        const sanitizedSubSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubSubFolder
+        );
+        const sanitizedSubSubSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubSubSubFolder
+        );
+        const sanitizedSubSubSubSubSubSubSubFolder = sanitizeInput(
+          req.params.SubSubSubSubSubSubSubFolder
+        );
+        const sanitizedResource = sanitizeInput(req.params.Resource);
+
+        //construct the path securely
+        const basePath = path.resolve(__dirname, "../../../../../College");
+        const dirPath = path.join(
+          basePath,
+          req.params.GradeLevel,
+          req.params.Semester,
+          sanitizedClassName,
+          sanitizedSubFolder,
+          sanitizedSubSubFolder,
+          sanitizedSubSubSubFolder,
+          sanitizedSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubSubFolder,
+          sanitizedSubSubSubSubSubSubSubFolder
+        );
+        const resolvedDirPath = path.resolve(dirPath);
+
+        // Prevent path traversal by ensuring the resolved path is within the base path
+        if (!resolvedDirPath.startsWith(basePath)) {
+          return res.status(400).send("Invalid path.");
+        }
+
+        // Check if the directory exists
+        const dirExists = await fs
+          .stat(resolvedDirPath)
+          .then((stat) => stat.isDirectory())
+          .catch(() => false);
+        if (!dirExists) {
+          return res.status(404).send("Directory does not exist.");
+        }
+
+        // Check if the resource exists in the directory
+        const resourcePath = path.join(resolvedDirPath, sanitizedResource);
+        const resolvedResourcePath = path.resolve(resourcePath);
+        if (!resolvedResourcePath.startsWith(resolvedDirPath)) {
+          return res.status(400).send("Invalid resource path.");
+        }
+        const resourceExists = await fs
+          .stat(resolvedResourcePath)
+          .then((stat) => stat.isFile())
+          .catch(() => false);
+        if (!resourceExists) {
+          return res.status(404).send("Resource not found.");
+        }
+
+        // Send the file
+        res.sendFile(resolvedResourcePath);
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: error.message });
     }
   }
 );
